@@ -26,7 +26,7 @@ struct Order {
     dishes: HashMap<Dish, u32>,
     is_takeaway: bool,
     size: u32,
-} // TODO
+}
 
 impl Order {
     fn new() -> Order {
@@ -39,7 +39,7 @@ impl Order {
 
     fn add_dish(&mut self, dish: Dish) {
         self.dishes.insert(dish, self.dishes.get(&dish).unwrap_or(&0) + 1);
-        self.size = self.size + 1;
+        self.size += 1;
     }
 
     fn set_takeaway(&mut self) {
@@ -62,7 +62,7 @@ impl Order {
         let mut sum = 0;
 
         for (dish, count) in &self.dishes {
-            sum = sum + dish.price() * count;
+            sum += dish.price() * count;
         }
 
         if self.is_takeaway() {
@@ -117,7 +117,7 @@ impl VanBinh {
     }
 
     fn increase_orders_count(&mut self) {
-        self.orders_count = self.orders_count + 1;
+        self.orders_count += 1;
     }
 
     fn get_orders_count(&self) -> u32 {
@@ -202,8 +202,6 @@ fn main() {
             );
             van_binh.increase_orders_count();
         }
-
-
     }
     println!("Bye!");
 }
