@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 use std::io::stdin;
+use std::collections::HashMap;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum Dish {
@@ -21,35 +22,48 @@ impl Dish {
 const TAKEAWAY_FEE: u32 = 1;
 
 #[derive(Debug, Clone)]
-struct Order; // TODO
+struct Order {
+    dishes: HashMap<Dish, u32>,
+    is_takeaway: bool,
+    size: u32,
+} // TODO
 
 impl Order {
     fn new() -> Order {
-        todo!()
+        Order {
+            dishes: HashMap::new(),
+            is_takeaway: false,
+            size: 0,
+        }
     }
 
     fn add_dish(&mut self, dish: Dish) {
-        todo!()
+        self.dishes.insert(dish, self.dishes.get(&dish).unwrap_or(&0) + 1);
+        self.size = self.size + 1;
     }
 
     fn set_takeaway(&mut self) {
-        todo!()
+        self.is_takeaway = true;
     }
 
     fn dish_count(&self, dish: Dish) -> u32 {
-        todo!()
+        *self.dishes.get(&dish).unwrap_or(&0)
     }
 
     fn items_count(&self) -> u32 {
-        todo!()
+       self.size
     }
 
     fn is_takeaway(&self) -> bool {
-        todo!()
+        self.is_takeaway
     }
 
     fn total(&self) -> u32 {
-        let sum = todo!();
+        let mut sum = 0;
+
+        for (dish, count) in &self.dishes {
+            sum = sum + dish.price() * count;
+        }
 
         if self.is_takeaway() {
             sum + self.items_count() * TAKEAWAY_FEE
@@ -84,11 +98,18 @@ struct VanBinh {
 
 impl VanBinh {
     pub fn new() -> VanBinh {
-        todo!()
+        VanBinh {
+            orders_count: 1,
+            customers: Vec::new(),
+        }
     }
-
+    //it is not specified what is to happen when the customer is already in
+    //vanbihn's struct. I have decided to ignore overwrite attempt.
     fn add_customer(&mut self, name: String, favorite_order: Order) {
-        todo!()
+        match self.customers.iter().find(|c| c.name == name) {
+            None => self.customers.push(Customer{name, favorite_order}),
+            _ => (),
+        }
     }
 
     fn get_saved_customer(&self, name: &str) -> Option<&Customer> {
@@ -96,11 +117,11 @@ impl VanBinh {
     }
 
     fn increase_orders_count(&mut self) {
-        todo!()
+        self.orders_count = self.orders_count + 1;
     }
 
     fn get_orders_count(&self) -> u32 {
-        todo!()
+        self.orders_count
     }
 }
 
@@ -155,7 +176,8 @@ fn main() {
         let order = if let Some(customer) = van_binh.get_saved_customer(&name) {
             println!("Welcome back, {}!", customer.name);
             if yes_no("Same as usual?") {
-                todo!() // use customer's favorite order
+                let order = customer.favorite_order.clone();
+                order
             } else {
                 get_order()
             }
@@ -163,21 +185,25 @@ fn main() {
             println!("Welcome, {}!", name);
             let order = get_order();
             if yes_no("Would you like to save this order?") {
-                todo!() // save customer's favorite order in van_binh struct
+                van_binh.add_customer(name, order.clone());
+                // save customer's favorite order in van_binh struct
             }
             order
         };
 
-        todo!(); // Check if the order is empty
-        println!("Your order is empty!");
+        if order.total() == 0 {
+            println!("Your order is empty!");
+        } else {
+            println!("This is order no. {}", van_binh.get_orders_count());
+            println!(
+                "There you go: {}, it's going to be {} zł",
+                order,
+                order.total()
+            );
+            van_binh.increase_orders_count();
+        }
 
-        println!("This is order no. {}", van_binh.get_orders_count());
-        println!(
-            "There you go: {}, it's going to be {} zł",
-            order,
-            order.total()
-        );
-        van_binh.increase_orders_count();
+
     }
     println!("Bye!");
 }
