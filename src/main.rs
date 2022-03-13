@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 use std::io::stdin;
-use std::collections::HashMap;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum Dish {
@@ -38,7 +38,8 @@ impl Order {
     }
 
     fn add_dish(&mut self, dish: Dish) {
-        self.dishes.insert(dish, self.dishes.get(&dish).unwrap_or(&0) + 1);
+        self.dishes
+            .insert(dish, self.dishes.get(&dish).unwrap_or(&0) + 1);
         self.size += 1;
     }
 
@@ -51,7 +52,7 @@ impl Order {
     }
 
     fn items_count(&self) -> u32 {
-       self.size
+        self.size
     }
 
     fn is_takeaway(&self) -> bool {
@@ -106,9 +107,11 @@ impl VanBinh {
     //it is not specified what is to happen when the customer is already in
     //vanbihn's struct. I have decided to ignore overwrite attempt.
     fn add_customer(&mut self, name: String, favorite_order: Order) {
-        match self.customers.iter().find(|c| c.name == name) {
-            None => self.customers.push(Customer{name, favorite_order}),
-            _ => (),
+        if !self.customers.iter().any(|c| c.name == name) {
+            self.customers.push(Customer {
+                name,
+                favorite_order,
+            });
         }
     }
 
@@ -176,8 +179,7 @@ fn main() {
         let order = if let Some(customer) = van_binh.get_saved_customer(&name) {
             println!("Welcome back, {}!", customer.name);
             if yes_no("Same as usual?") {
-                let order = customer.favorite_order.clone();
-                order
+                customer.favorite_order.clone()
             } else {
                 get_order()
             }
